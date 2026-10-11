@@ -13,7 +13,7 @@ window.FATOUMA.config = {
   },
 
   // رقم واتساب بصيغة دولية بدون + (مثال: 212612345678)
-  whatsapp: '212600000000',
+  whatsapp: '212707656096',
 
   currency: 'د.م',
 
@@ -25,13 +25,12 @@ window.FATOUMA.config = {
   ],
 
   social: {
-    instagram: 'https://instagram.com/fatouma.ma',
-    facebook: 'https://facebook.com/fatouma.ma'
+    instagram: 'https://www.instagram.com/ftoma.maroc/'
   },
 
   contact: {
-    phone: '+212 6 00 00 00 00',
-    email: 'bonjour@fatouma.ma',
+    phone: '+212 7 07 65 60 96',
+    email: '',
     address: 'الدار البيضاء، المغرب'
   },
 

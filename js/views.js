@@ -39,7 +39,7 @@
           <p>${cfg.brand.tagline}</p>
           <div class="socials">
             <a href="${cfg.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${F.icon('instagram')}</a>
-            <a href="${cfg.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${F.icon('facebook')}</a>
+            ${cfg.social.facebook ? `<a href="${cfg.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${F.icon('facebook')}</a>` : ''}
             <a href="${F.waLink('السلام عليكم، بغيت نسول على فطومة')}" target="_blank" rel="noopener" aria-label="WhatsApp">${F.icon('whatsapp')}</a>
           </div>
         </div>
@@ -65,7 +65,7 @@
           <h4>Contact</h4>
           <ul>
             <li><a href="tel:${cfg.contact.phone.replace(/\s/g, '')}">${cfg.contact.phone}</a></li>
-            <li><a href="mailto:${cfg.contact.email}">${cfg.contact.email}</a></li>
+            ${cfg.contact.email ? `<li><a href="mailto:${cfg.contact.email}">${cfg.contact.email}</a></li>` : ''}
             <li>${cfg.contact.address}</li>
           </ul>
         </div>
