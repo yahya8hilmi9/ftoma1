@@ -1,0 +1,94 @@
+/* ============================================================
+   FATOUMA — Responsive layer (loaded after components.css)
+   Breakpoints: 1100 / 900 / 760 / 600 / 480 / 360
+   ============================================================ */
+
+/* ---- global safety ---- */
+html { overflow-x: clip; }
+body { overflow-x: clip; min-height: 100vh; }
+img, svg, video { max-width: 100%; }
+h1, h2, h3, p { overflow-wrap: anywhere; }
+.hp, .form input.hp { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; border: 0 !important; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); opacity: 0; pointer-events: none; }
+
+/* ---- shop toolbar: never wider than the screen ---- */
+.toolbar { grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); }
+.toolbar select, .toolbar .search { min-width: 0; width: 100%; }
+@media (max-width: 960px) {
+  .toolbar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .toolbar .search { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .toolbar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .toolbar > select:last-of-type { grid-column: 1 / -1; }
+}
+
+/* ---- footer brand must not be absolutely positioned like the header one ---- */
+.f-brand .brand, .site-footer .brand { position: static; margin: 0 0 10px; width: auto; }
+@media (max-width: 600px) { .f-brand .brand { align-items: center; } .f-brand { text-align: center; } }
+
+/* ---- tablets ---- */
+@media (max-width: 1024px) {
+  .container { width: min(1180px, 100% - 40px); }
+}
+
+/* ---- phones ---- */
+@media (max-width: 760px) {
+  .container { width: calc(100% - 32px); }
+  section, .section { scroll-margin-top: 70px; }
+  .page-head { padding: 96px 0 28px; }
+  .section-title h2, .section h2 { font-size: clamp(26px, 7vw, 34px); }
+  /* touch targets + no iOS zoom on focus */
+  input, select, textarea { font-size: 16px; }
+  .icon-btn, .cart-btn { min-width: 44px; min-height: 44px; }
+  .btn { min-height: 46px; }
+  .btn-sm { min-height: 40px; }
+  .qty button, .stepper button { min-width: 40px; min-height: 40px; }
+  /* floating WhatsApp must clear the iPhone home bar */
+  .wa-float { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .drawer-foot { padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
+  /* checkout: summary first so the customer sees the total, form after */
+  .checkout { display: flex; flex-direction: column; }
+  .checkout .summary { order: -1; }
+  .form { padding: 18px; }
+  .radio { flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  .drawer { width: 100%; }
+  .hero { padding-top: 92px; }
+  .hero .btn { width: 100%; }
+  .brand-ar { font-size: 28px; }
+  .pdp { gap: 20px; }
+  .modal { max-height: 92vh; overflow-y: auto; }
+}
+@media (max-width: 360px) {
+  .container { width: calc(100% - 24px); }
+  .brand-ar { font-size: 26px; }
+  .brand-fr { letter-spacing: .25em; }
+  .cat-grid, .cat-grid-sm { gap: 10px; }
+}
+
+/* ---- large screens ---- */
+@media (min-width: 1600px) {
+  .container { width: min(1360px, 100% - 80px); }
+}
+
+/* ---- landscape phones: don't let the fixed header eat the screen ---- */
+@media (max-height: 480px) and (orientation: landscape) {
+  .hero { padding-top: 84px; padding-bottom: 36px; }
+  .drawer-head { padding: 10px 16px; }
+}
+
+/* ---- respect users who print the page ---- */
+@media print { .site-header, .wa-float, #drawer-root, .site-footer { display: none !important; } }
+
+/* ---- product grid: 3 columns on tablets, 2 on phones ---- */
+@media (min-width: 761px) and (max-width: 1024px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+@media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 340px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- checkout stacking ---- */
+@media (max-width: 860px) {
+  .checkout { display: flex; flex-direction: column; align-items: stretch; gap: 20px; }
+  .checkout > * { width: 100%; max-width: 100%; margin: 0; }
+  .checkout .summary { order: -1; position: static; }
+}

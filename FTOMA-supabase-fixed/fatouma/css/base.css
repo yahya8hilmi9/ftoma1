@@ -1,0 +1,78 @@
+/* ============================================================
+   FATOUMA — Design System: Tokens + Base
+   ============================================================ */
+:root {
+  /* الألوان */
+  --terracotta: #B5532F;
+  --terracotta-dark: #8E3E1E;
+  --cream: #F8F1E2;
+  --sand: #EFE2C6;
+  --brown: #3B2416;
+  --brown-soft: #6B4A35;
+  --olive: #5E6A35;
+  --olive-dark: #46502A;
+  --gold: #B8893A;
+  --gold-light: #E3C58A;
+  --white: #FFFDF8;
+
+  /* الخطوط */
+  --f-display: 'Aref Ruqaa', 'Amiri', serif;
+  --f-body: 'Tajawal', system-ui, sans-serif;
+  --f-latin: 'Cormorant Garamond', Georgia, serif;
+
+  /* القياسات */
+  --radius: 18px;
+  --radius-sm: 10px;
+  --shadow: 0 10px 30px rgba(59, 36, 22, .12);
+  --shadow-lg: 0 20px 50px rgba(59, 36, 22, .2);
+  --ease: cubic-bezier(.22, .8, .3, 1);
+
+  /* زليج خفيف */
+  --zellige: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23B8893A' stroke-width='1'%3E%3Crect x='15' y='15' width='30' height='30'/%3E%3Crect x='15' y='15' width='30' height='30' transform='rotate(45 30 30)'/%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; font-family: var(--f-body); font-size: 17px; line-height: 1.7;
+  color: var(--brown); background: var(--cream);
+  overflow-x: hidden;
+}
+body.cart-open, body.menu-open { overflow: hidden; }
+img, svg { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 700; line-height: 1.25; margin: 0 0 .4em; }
+p { margin: 0 0 1em; }
+ul { margin: 0; padding: 0; list-style: none; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.container { width: min(1180px, 100% - 32px); margin-inline: auto; }
+.center { text-align: center; margin-top: 24px; }
+
+/* قسم */
+.section { padding: 72px 0; position: relative; }
+.section-tight { padding: 36px 0 64px; }
+.section-sand { background: var(--sand); }
+.section-dark { background: var(--terracotta-dark); color: var(--cream); }
+.section-olive { background: var(--olive-dark); color: var(--cream); }
+.zellige { position: relative; isolation: isolate; }
+.zellige::before { content: ''; position: absolute; inset: 0; background-image: var(--zellige); opacity: .09; z-index: -1; pointer-events: none; }
+
+.section-head { text-align: center; max-width: 640px; margin: 0 auto 40px; }
+.section-head h2 { font-size: clamp(30px, 5vw, 44px); }
+.section-head p { opacity: .85; }
+.kicker { font-family: var(--f-latin); font-style: italic; font-size: 19px; color: var(--terracotta); letter-spacing: .04em; }
+.section-dark .kicker, .section-olive .kicker, .kicker-gold { color: var(--gold-light); }
+.ornament { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0 14px; }
+.ornament i { width: 60px; height: 1px; background: var(--gold); }
+.ornament b { width: 10px; height: 10px; background: var(--gold); transform: rotate(45deg); }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}
