@@ -43,7 +43,7 @@
   const fatayer = [
     { id: 'msemen',  cat: 'fatayer', ar: 'مسمن', fr: 'Msemen',
       desc: 'رقائق ذهبية مطوية باليد، مقرمشة من الخارج وطرية من الداخل.',
-      price: 4, unit: 'قطعة', art: { shapes: ['msemen'] },
+      price: 4, unit: 'قطعة', image: 'img/msemen.jpg', art: { shapes: ['msemen'] },
       occ: ['breakfast', 'ramadan', 'hospitality', 'family'], tags: ['best'] },
     { id: 'harcha',  cat: 'fatayer', ar: 'حرشة', fr: 'Harcha',
       desc: 'سميد ذهبي بقشرة مقرمشة وقلب طري، على أصولها بالزبدة.',

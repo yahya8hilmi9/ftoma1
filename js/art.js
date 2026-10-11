@@ -171,8 +171,10 @@
 
   /** HTML للصورة: صورة حقيقية إن وجدت، وإلا SVG مؤقت */
   F.artHtml = function (item, filling) {
+    if (!item) item = { ar: '', art: { shapes: ['msemen'] } };
     if (item.image) {
-      return `<img src="${item.image}" alt="${item.ar}" loading="lazy">`;
+      const q = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      return `<img src="${q(item.image)}" alt="${q(item.ar)}" loading="lazy">`;
     }
     return F.art(item, filling);
   };

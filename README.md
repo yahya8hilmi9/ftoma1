@@ -27,3 +27,10 @@ js/app.js             ← Router والأحداث والأنيميشن
 `#/` الرئيسية · `#/shop` المتجر (بحث/فلاتر) · `#/product/ID` · `#/checkout` · السلة كدرج جانبي.
 
 الأسعار والرقم الحالي أمثلة للتجربة فقط.
+
+## النشر على GitHub Pages
+1. كريي repo public، وحط محتوى هاد المجلد فـ الجذر (مع `.nojekyll`).
+2. Settings ← Pages ← Deploy from a branch ← `main` / `(root)`.
+3. الرابط: `https://USERNAME.github.io/REPO/` — زيدو فـ Supabase ← Authentication ← URL Configuration.
+4. ملاحظة: `_headers` و `vercel.json` ما كيخدموش فـ GitHub Pages (غير CSP meta). للحماية الكاملة استعمل Cloudflare Pages/Netlify/Vercel.
+5. ما تحط أبدا service_role / sb_secret / مفتاح CallMeBot فـ الـ repo.

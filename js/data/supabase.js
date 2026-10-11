@@ -35,6 +35,9 @@
     },
     /* Build the storefront catalog from Supabase (source of truth once it answers).
        Local items keep their artwork; new products created in admin.html appear automatically. */
+    /* Strings coming from the database end up in innerHTML: neutralise tag / attribute injection. */
+    safeText(v) { return String(v == null ? '' : v).replace(/[<>]/g, '').replace(/"/g, '\u201D').slice(0, 600); },
+    safeUrl(v, httpsOnly) { const u = String(v || '').trim(); return /^https:\/\/[^\s"'<>`]+$/.test(u) || (!httpsOnly && /^http:\/\/[^\s"'<>`]+$/.test(u)) ? u : ''; },
     async syncCatalog() {
       const rows = await this.getActiveProducts();
       const bySlug = {}; rows.forEach(r => { bySlug[r.slug] = r; });
@@ -42,11 +45,11 @@
       const apply = (it, r) => {
         const price = Number(r.price);
         if (Number.isFinite(price)) it.price = price;
-        if (r.name_ar) it.ar = r.name_ar;
-        if (r.name_fr) it.fr = r.name_fr;
-        if (r.description) it.desc = r.description;
-        if (r.unit) it.unit = r.unit;
-        if (r.image_url) it.image = r.image_url;
+        if (r.name_ar) it.ar = this.safeText(r.name_ar);
+        if (r.name_fr) it.fr = this.safeText(r.name_fr);
+        if (r.description) it.desc = this.safeText(r.description);
+        if (r.unit) it.unit = this.safeText(r.unit);
+        if (this.safeUrl(r.image_url, true)) it.image = this.safeUrl(r.image_url, true);
         it.stock = r.stock_quantity;
         return it;
       };
@@ -60,7 +63,7 @@
       });
       rows.forEach(r => {
         if (used[r.slug] || F.hiddenById[r.slug] || !inStock(r) || catIds.indexOf(r.category) < 0) return;
-        out.push(apply({ id: r.slug, cat: r.category, ar: r.name_ar, fr: r.name_fr || '', desc: r.description || '', price: 0, unit: r.unit || '', art: { shapes: ['msemen'] }, occ: [], tags: [] }, r));
+        out.push(apply({ id: String(r.slug).replace(/[^a-z0-9-]/gi, ''), cat: r.category, ar: this.safeText(r.name_ar), fr: this.safeText(r.name_fr), desc: this.safeText(r.description), price: 0, unit: this.safeText(r.unit), art: { shapes: ['msemen'] }, occ: [], tags: [] }, r));
       });
       F.items = out;
       // category covers must point to a visible item
@@ -72,15 +75,15 @@
       if (!v) return;
       const c = F.config;
       if (v.whatsapp) c.whatsapp = String(v.whatsapp).replace(/[^0-9]/g, '');
-      if (v.tagline) c.brand.tagline = v.tagline;
-      ['phone', 'email', 'address'].forEach(k => { if (v[k]) c.contact[k] = v[k]; });
-      ['instagram', 'facebook'].forEach(k => { if (v[k]) c.social[k] = v[k]; });
-      if (Array.isArray(v.hours) && v.hours.length) c.hours = v.hours.filter(h => h && h.d && h.h);
+      if (v.tagline) c.brand.tagline = this.safeText(v.tagline);
+      ['phone', 'email', 'address'].forEach(k => { if (v[k]) c.contact[k] = this.safeText(v[k]); });
+      ['instagram', 'facebook'].forEach(k => { const u = this.safeUrl(v[k], true); if (u) c.social[k] = u; });
+      if (Array.isArray(v.hours) && v.hours.length) c.hours = v.hours.filter(h => h && h.d && h.h).map(h => ({ d: this.safeText(h.d), h: this.safeText(h.h) }));
       if (v.delivery) c.delivery.forEach(d => {
         const x = v.delivery[d.id]; if (!x) return;
         if (x.fee !== undefined && x.fee !== null && x.fee !== '') d.fee = Number(x.fee);
         if ('freeFrom' in x) d.freeFrom = (x.freeFrom === null || x.freeFrom === '' || Number(x.freeFrom) <= 0) ? null : Number(x.freeFrom);
-        if (x.eta) d.eta = x.eta;
+        if (x.eta) d.eta = this.safeText(x.eta);
       });
     },
     async loadSettings() {

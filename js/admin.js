@@ -44,7 +44,16 @@
     showLogin();
   }
 
+  // sign out automatically after 30 minutes without activity
+  let idleT = null;
+  function armIdle() {
+    clearTimeout(idleT);
+    idleT = setTimeout(async () => { try { await S.signOut(); } catch (x) {} showLogin('تم تسجيل الخروج تلقائياً بسبب عدم النشاط.'); }, 30 * 60 * 1000);
+  }
+  ['click', 'keydown', 'touchstart', 'mousemove'].forEach(ev => document.addEventListener(ev, () => { if (!$('#btn-logout').hidden) armIdle(); }, { passive: true }));
+
   async function start() {
+    armIdle();
     $('#btn-logout').hidden = false;
     await load();
     clearInterval(timer);
@@ -274,7 +283,8 @@
   }
 
   function downloadCSV() {
-    const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    // quote everything, and defuse spreadsheet formulas (=, +, -, @) in customer-supplied text
+    const q = v => { let t = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return '"' + t.replace(/"/g, '""') + '"'; };
     const rows = [['رقم', 'التاريخ', 'الاسم', 'الهاتف', 'المدينة', 'العنوان', 'التوصيل', 'المنتجات', 'المجموع الفرعي', 'رسوم التوصيل', 'المجموع', 'الحالة', 'ملاحظات']];
     orders.forEach(o => rows.push([o.order_number, o.created_at, o.customer_name, o.customer_phone, o.customer_city, o.customer_address, DELIVERY[o.delivery_method] || o.delivery_method,
       (o.order_items || []).map(i => i.quantity + 'x ' + i.product_name).join(' | '), o.subtotal, o.delivery_fee, o.total, STATUS[o.status] || o.status, o.customer_notes || '']));

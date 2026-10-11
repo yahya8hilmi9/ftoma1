@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>فطومة · Fatouma — فطائر وحلويات مغربية أصيلة</title>
   <meta name="description" content="مذاق مغربي أصيل… بحب فطومة. مسمن، حرشة، بغرير، بطبوط وحلويات مغربية تقليدية مع Packs وتوصيل.">
   <meta name="theme-color" content="#B5532F">
@@ -22,7 +24,7 @@
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script src="js/data/config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/vendor/supabase-2.45.4.js"></script>
   <script src="js/data/supabase.js"></script>
   <script src="js/data/catalog.js"></script>
   <script src="js/art.js"></script>
