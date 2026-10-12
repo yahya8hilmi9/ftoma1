@@ -99,11 +99,31 @@
     ({ orders: renderOrders, stock: renderStock, stats: renderStats, admins: renderAdmins }[tab] || renderOrders)();
   }
 
+  // محتوى الـ Pack: التركيب المعدّل إن وُجد، وإلا التركيب الافتراضي للـ Pack
+  function packContents(i) {
+    const op = i.options || {};
+    if (op.comp && typeof op.comp === 'object') return { comp: op.comp, custom: true };
+    const row = products.find(p => (op.slug && p.slug === op.slug) || p.name_ar === i.product_name);
+    const local = (op.slug && F.byId(op.slug)) || F.items.find(x => x.ar === i.product_name);
+    const base = (row && row.composition && typeof row.composition === 'object') ? row.composition : (local && local.comp);
+    return base ? { comp: base, custom: false } : null;
+  }
+  function compText(comp) {
+    return Object.entries(comp).filter(([, q]) => q > 0).map(([k, q]) => {
+      const x = F.byId(k) || products.find(p => p.slug === k);
+      return q + ' × ' + ((x && (x.ar || x.name_ar)) || k);
+    });
+  }
+
   function itemLine(i) {
     const op = i.options || {};
     const f = op.filling && F.fillingById && F.fillingById(op.filling);
-    const comp = op.comp ? ' [معدّل: ' + Object.entries(op.comp).map(([k, q]) => q + '×' + ((F.byId(k) || {}).ar || k)).join('، ') + ']' : '';
-    return `<li><span>${i.quantity} × ${esc(i.product_name)}${f ? ' (' + esc(f.ar) + ')' : ''}${esc(comp)}</span><b>${money(i.line_total)}</b></li>`;
+    const pc = packContents(i);
+    const parts = pc ? compText(pc.comp) : [];
+    const box = parts.length
+      ? `<div class="pack-content"><b>${pc.custom ? 'محتوى الـ Pack (معدّل من الزبون)' : 'محتوى الـ Pack'}${i.quantity > 1 ? ' — لكل علبة (× ' + i.quantity + ')' : ''}:</b> ${parts.map(esc).join('، ')}</div>`
+      : '';
+    return `<li><div class="li-main"><span>${i.quantity} × ${esc(i.product_name)}${f ? ' (' + esc(f.ar) + ')' : ''}</span>${box}</div><b>${money(i.line_total)}</b></li>`;
   }
 
   function renderOrders() {
@@ -287,7 +307,7 @@
     const q = v => { let t = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return '"' + t.replace(/"/g, '""') + '"'; };
     const rows = [['رقم', 'التاريخ', 'الاسم', 'الهاتف', 'المدينة', 'العنوان', 'التوصيل', 'المنتجات', 'المجموع الفرعي', 'رسوم التوصيل', 'المجموع', 'الحالة', 'ملاحظات']];
     orders.forEach(o => rows.push([o.order_number, o.created_at, o.customer_name, o.customer_phone, o.customer_city, o.customer_address, DELIVERY[o.delivery_method] || o.delivery_method,
-      (o.order_items || []).map(i => i.quantity + 'x ' + i.product_name).join(' | '), o.subtotal, o.delivery_fee, o.total, STATUS[o.status] || o.status, o.customer_notes || '']));
+      (o.order_items || []).map(i => { const pc = packContents(i); return i.quantity + 'x ' + i.product_name + (pc ? ' [' + compText(pc.comp).join(' + ') + ']' : ''); }).join(' | '), o.subtotal, o.delivery_fee, o.total, STATUS[o.status] || o.status, o.customer_notes || '']));
     const blob = new Blob(['﻿' + rows.map(r => r.map(q).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'orders-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);

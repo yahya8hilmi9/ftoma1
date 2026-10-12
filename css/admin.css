@@ -26,6 +26,9 @@
 .order-top small { color: var(--brown-soft); }
 .order-meta { display: grid; gap: 4px; margin: 10px 0; color: var(--brown-soft); }
 .order ul { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 6px; }
+.order .li-main { display: grid; gap: 4px; min-width: 0; }
+.order .pack-content { font-size: 13px; color: var(--brown-soft, #6b5a43); background: rgba(227, 197, 138, .18); border-radius: 8px; padding: 6px 10px; line-height: 1.6; }
+.order .pack-content b { color: var(--brown, #4a3420); }
 .order li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px dashed var(--gold-light); padding-bottom: 6px; }
 .order-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
 .order-foot .tot { font-size: 20px; font-weight: 800; color: var(--terracotta-dark); }
