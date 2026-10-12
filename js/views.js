@@ -70,7 +70,10 @@
           </ul>
         </div>
       </div>
-      <div class="container footer-bottom">© ${new Date().getFullYear()} فطومة · Fatouma — صُنع بحب في المغرب</div>
+      <div class="container footer-bottom">
+        ${cfg.founders && cfg.founders.length ? `<div class="founders">المؤسسون · Fondateurs : <strong>${cfg.founders.map(n => n).join(' &amp; ')}</strong></div>` : ''}
+        <div>© ${new Date().getFullYear()} فطومة · Fatouma — صُنع بحب في المغرب</div>
+      </div>
     </footer>
     <a class="wa-float" href="${F.waLink('السلام عليكم، بغيت نسول على فطومة')}" target="_blank" rel="noopener" aria-label="WhatsApp">${F.icon('whatsapp', 28)}</a>`;
 

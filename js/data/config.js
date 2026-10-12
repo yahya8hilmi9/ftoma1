@@ -15,6 +15,9 @@ window.FATOUMA.config = {
   // رقم واتساب بصيغة دولية بدون + (مثال: 212612345678)
   whatsapp: '212707656096',
 
+  // مؤسسو المشروع (كيبانو فـ الفوتر)
+  founders: ['Yahya Hilmi', 'Fatima Aoussah'],
+
   currency: 'د.م',
 
   // خيارات التوصيل
