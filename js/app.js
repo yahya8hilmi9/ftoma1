@@ -40,6 +40,7 @@
     else if (path === '/checkout') html = F.views.checkout();
     else if (path === '/admin') { location.replace('admin.html'); return; }
     else if (path === '/success') html = F.views.success(params);
+    else if (path === '/track') html = F.views.track(params);
     else html = F.views.notFound();
     main.innerHTML = html;
     closeMenu();
@@ -237,6 +238,25 @@
   });
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeCart(); closeMenu(); } });
+
+  /* ---------- تتبع الطلب ---------- */
+  document.addEventListener('submit', async e => {
+    if (e.target.id !== 'track-form') return;
+    e.preventDefault();
+    const f = e.target, out = $('#track-result'), btn = f.querySelector('button');
+    const num = f.elements.number.value.replace(/[^0-9]/g, ''), phone = f.elements.phone.value.replace(/[\s.-]/g, '');
+    const check = (name, ok, msg) => { const fl = f.elements[name].closest('.field'); fl.classList.toggle('invalid', !ok); fl.querySelector('.err').textContent = ok ? '' : msg; return ok; };
+    const a = check('number', /^[0-9]{1,12}$/.test(num), 'أدخل رقم الطلب');
+    const b = check('phone', /^(\+212|0)[5-7]\d{8}$/.test(phone), 'رقم هاتف مغربي غير صالح');
+    if (!a || !b) return;
+    btn.disabled = true; out.innerHTML = '<p class="muted">...</p>';
+    try {
+      const o = await F.supabase.trackOrder(num, phone);
+      out.innerHTML = F.views.trackResult(o);
+    } catch (err) {
+      out.innerHTML = '<div class="track-card track-miss">' + (/too many/i.test(String(err && err.message)) ? 'محاولات بزاف. عاود من بعد شوية.' : 'وقع مشكل فـ الاتصال. عاود من بعد.') + '</div>';
+    } finally { btn.disabled = false; }
+  });
 
   /* ---------- Checkout ---------- */
   document.addEventListener('submit', e => {

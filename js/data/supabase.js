@@ -127,6 +127,12 @@
       if (error) throw error;
       return data;
     },
+    async trackOrder(number, phone) {
+      const client = await this.init();
+      const { data, error } = await client.rpc('track_order', { p_number: Number(number), p_phone: String(phone || '') });
+      if (error) throw error;
+      return data;
+    },
     async signInAdmin(email, password) {
       const client = await this.init();
       const { data, error } = await client.auth.signInWithPassword({ email, password });

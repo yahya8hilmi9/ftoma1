@@ -415,3 +415,21 @@ body.modal-open { overflow: hidden; }
 .form-error { margin: 0; padding: 10px 14px; border-radius: 10px; background: #fbe9e5; color: #8a2a18; font-size: 15px; }
 .form-error[hidden] { display: none; }
 #checkout-form button[disabled] { opacity: .6; cursor: wait; }
+
+/* ---------- تتبع الطلب ---------- */
+.track-wrap { max-width: 560px; }
+.track-wrap h1 { margin-bottom: 6px; }
+.track-wrap .muted { opacity: .75; margin-bottom: 18px; }
+.track-card { margin-top: 22px; background: #fff; border: 1px solid var(--gold-light); border-radius: 16px; padding: 18px; }
+.track-miss { text-align: center; color: #9b2c2c; }
+.track-steps { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 10px; }
+.track-steps li { display: flex; align-items: center; gap: 10px; opacity: .5; }
+.track-steps li span { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--gold-light); font-size: 14px; flex: none; }
+.track-steps li.done { opacity: 1; } .track-steps li.done span { background: var(--gold-light); }
+.track-steps li.now { opacity: 1; font-weight: 700; } .track-steps li.now span { background: var(--brown); color: #fff; border-color: var(--brown); }
+.track-cancel { margin: 14px 0; padding: 10px 12px; border-radius: 10px; background: #fdecea; color: #9b2c2c; }
+.track-items { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
+.track-items li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px dashed var(--gold-light); padding-bottom: 8px; }
+.track-items small { display: block; opacity: .7; font-size: 13px; }
+.track-total { display: flex; justify-content: space-between; padding: 4px 0; }
+.track-total.big { font-size: 18px; font-weight: 700; }

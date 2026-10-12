@@ -21,6 +21,7 @@
           <a href="#/category/packs-fatayer">Les Packs</a>
           <a href="#/" data-scroll="occasions">المناسبات</a>
           <a href="#/" data-scroll="about">من نحن</a>
+          <a href="#/track">تتبع طلبك</a>
         </nav>
         <div class="header-actions">
           <a class="icon-btn" href="#/shop?focus=1" aria-label="بحث">${F.icon('search')}</a>
@@ -51,6 +52,7 @@
             <li><a href="#/category/packs-fatayer">Les Packs</a></li>
             <li><a href="#/" data-scroll="occasions">المناسبات</a></li>
             <li><a href="#/" data-scroll="about">من نحن</a></li>
+            <li><a href="#/track">تتبع طلبك</a></li>
           </ul>
         </div>
         <div>
@@ -335,7 +337,51 @@
       <div class="done">${F.icon('check', 40)}</div>
       <h1>شكراً لك! 🌿</h1>
       <p>${n ? `تسجل طلبك فالموقع. رقم الطلب: <b>#${String(n).replace(/[^0-9]/g, '')}</b>. غادي نتواصلو معك لتأكيد الطلب والتوصيل.` : 'فتحنا واتساب بطلبك. غادي نتواصلو معك لتأكيد الطلب والتوصيل.'}</p>
+      ${n ? `<p><a class="btn btn-ghost" href="#/track?n=${String(n).replace(/[^0-9]/g, '')}">تتبع طلبك</a></p>` : ''}
       <a class="btn btn-primary" href="#/">العودة للرئيسية</a></div></section>`;
+  };
+
+  /* ---------- تتبع الطلب ---------- */
+  V.track = (params) => {
+    const n = String((params && params.n) || '').replace(/[^0-9]/g, '');
+    return `
+    <section class="section"><div class="container track-wrap">
+      <h1>تتبع طلبك</h1>
+      <p class="muted">دخل رقم الطلب (اللي توصلتي بيه من بعد الطلب) ورقم الهاتف اللي استعملتي فـ الطلب.</p>
+      <form id="track-form" class="form" novalidate>
+        <div class="field"><label for="t-num">رقم الطلب</label><input id="t-num" name="number" inputmode="numeric" placeholder="مثال: 125" value="${n}" required autocomplete="off"><small class="err"></small></div>
+        <div class="field"><label for="t-phone">رقم الهاتف</label><input id="t-phone" name="phone" type="tel" inputmode="tel" placeholder="06 00 00 00 00" required autocomplete="tel"><small class="err"></small></div>
+        <button class="btn btn-primary btn-block" type="submit">تتبع</button>
+      </form>
+      <div id="track-result" aria-live="polite"></div>
+    </div></section>`;
+  };
+
+  const TRACK_STEPS = [['new', 'تسجل الطلب'], ['confirmed', 'تأكد'], ['preparing', 'قيد التحضير'], ['shipped', 'في الطريق'], ['completed', 'تسلّمتي الطلب']];
+  V.trackResult = (o) => {
+    if (!o) return `<div class="track-card track-miss">ما لقينا حتى طلب بهاد الرقم والهاتف. تأكد من المعلومات وعاود.</div>`;
+    const money = v => Number(v) + ' ' + cfg.currency;
+    const cancelled = o.status === 'cancelled';
+    const idx = TRACK_STEPS.findIndex(x => x[0] === o.status);
+    const steps = cancelled
+      ? `<div class="track-cancel">هاد الطلب تلغى. إلا بغيتي تستفسر، تواصل معنا فـ واتساب.</div>`
+      : `<ol class="track-steps">${TRACK_STEPS.map((x, i) => `<li class="${i < idx ? 'done' : i === idx ? 'now' : ''}"><span>${i < idx ? '✓' : i + 1}</span>${x[1]}</li>`).join('')}</ol>`;
+    const lines = (o.items || []).map(i => {
+      const op = i.options || {};
+      const base = (op.slug && F.byId(op.slug)) || F.items.find(x => x.ar === i.name);
+      const comp = op.comp || (base && base.comp);
+      const parts = comp ? Object.entries(comp).filter(([, q]) => q > 0).map(([k, q]) => q + ' × ' + ((F.byId(k) || {}).ar || k)) : [];
+      const nm = String(i.name == null ? '' : i.name).replace(/[<>&"]/g, '');
+      return `<li><span>${Number(i.qty)} × ${nm}${parts.length ? `<small>${parts.join('، ')}</small>` : ''}</span><b>${money(i.total)}</b></li>`;
+    }).join('');
+    return `<div class="track-card">
+      <h2>طلب #${Number(o.order_number)}</h2>
+      <small>${new Date(o.created_at).toLocaleString('fr-MA')}</small>
+      ${steps}
+      <ul class="track-items">${lines}</ul>
+      <div class="track-total"><span>التوصيل</span><b>${Number(o.delivery_fee) ? money(o.delivery_fee) : 'مجاني'}</b></div>
+      <div class="track-total big"><span>المجموع</span><b>${money(o.total)}</b></div>
+    </div>`;
   };
 
   V.notFound = () => `
