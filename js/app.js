@@ -50,6 +50,27 @@
     } else window.scrollTo(0, 0);
     if (path === '/shop' && params.focus) { const q = $('#shop-q'); if (q) q.focus(); }
     observe();
+    bindWalkIn(path === '/');
+  }
+
+  /* الدخول للبيت: كلما نزل الزائر، كبرات صورة الباب وكأنه داخل للدار */
+  let walkOff = null;
+  function bindWalkIn(on) {
+    if (walkOff) { walkOff(); walkOff = null; }
+    const art = document.querySelector('.hero-art');
+    if (!on || !art || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    const hero = art.closest('.hero');
+    const max = window.innerWidth < 860 ? 1.22 : 1.28;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const p = Math.max(0, Math.min(1, window.scrollY / (hero.offsetHeight * 0.75)));
+      art.style.setProperty('--walk', (1 + (max - 1) * p).toFixed(3));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update();
+    walkOff = () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
   }
 
   /* ---------- Cart UI ---------- */
