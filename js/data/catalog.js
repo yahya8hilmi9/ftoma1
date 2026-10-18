@@ -15,7 +15,7 @@
 
   F.categories = [
     // cover = المنتج الذي تُؤخذ صورته لتمثيل القسم (يمكنك لاحقاً وضع image: 'img/cat-fatayer.jpg')
-    { id: 'fatayer',       ar: 'الفطائر',          fr: 'Les Ftours',     cover: 'msemen', blurb: 'مسمن، حرشة، بغرير وبطبوط، طازجة كل صباح وعلى أصولها.' },
+    { id: 'fatayer',       ar: 'الفطائر',          fr: 'Les Ftours',     cover: 'msemen', image: 'img/cat-fatayer.jpg', blurb: 'مسمن، حرشة، بغرير وبطبوط، طازجة كل صباح وعلى أصولها.' },
     { id: 'mamar',         ar: 'المعمّرين',         fr: 'Les Mamar',      cover: 'msemen-mamar', blurb: 'المسمن والبطبوط المحشوان: اختر بين الخليع والخضرة والشحمة.' },
     { id: 'sweets',        ar: 'الحلويات',         fr: 'Les Douceurs',   cover: 'kaab-ghzal', blurb: 'كعب الغزال، غريبة، فقاص، بريوات، شباكية وغيرها من حلويات الأجداد.' },
     { id: 'packs-fatayer', ar: 'Packs الفطائر',    fr: 'Packs Ftours',   cover: 'pack-baghrir-batbout', blurb: 'علب جاهزة للفطائر، من المسمن إلى البطبوط المعمّر.' },

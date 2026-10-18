@@ -112,7 +112,7 @@
             const cover = F.byId(c.cover);
             const n = F.items.filter(i => i.cat === c.id).length;
             return `<a class="cat reveal" href="#/category/${c.id}">
-              <div class="cat-media">${F.artHtml(cover, 'khlii')}</div>
+              <div class="cat-media">${F.artHtml(c.image ? { image: c.image, ar: c.ar } : cover, 'khlii')}</div>
               <div class="cat-label"><strong>${c.ar}</strong><span>${c.fr}</span><em>${n} منتج</em></div>
             </a>`;
           }).join('')}
@@ -192,7 +192,7 @@
         <div class="related">
           <h3>اكتشف أقسامنا الأخرى</h3>
           <div class="cat-grid cat-grid-sm">
-            ${others.map(o => `<a class="cat reveal" href="#/category/${o.id}"><div class="cat-media">${F.artHtml(F.byId(o.cover), 'khlii')}</div><div class="cat-label"><strong>${o.ar}</strong><span>${o.fr}</span></div></a>`).join('')}
+            ${others.map(o => `<a class="cat reveal" href="#/category/${o.id}"><div class="cat-media">${F.artHtml(o.image ? { image: o.image, ar: o.ar } : F.byId(o.cover), 'khlii')}</div><div class="cat-label"><strong>${o.ar}</strong><span>${o.fr}</span></div></a>`).join('')}
           </div>
         </div>
       </div>
