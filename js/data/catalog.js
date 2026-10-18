@@ -55,7 +55,7 @@
       occ: ['breakfast', 'ramadan', 'hospitality'], tags: ['best'] },
     { id: 'batbout', cat: 'fatayer', ar: 'بطبوط', fr: 'Batbout',
       desc: 'خبز مغربي منتفخ على الطاجين، يصلح للحشو أو للأكل مع الجبن والزيتون.',
-      price: 4, unit: 'قطعة', art: { shapes: ['batbout'] },
+      price: 4, unit: 'قطعة', image: 'img/batbout.jpg', art: { shapes: ['batbout'] },
       occ: ['breakfast', 'family', 'hospitality'], tags: [] }
   ];
 
