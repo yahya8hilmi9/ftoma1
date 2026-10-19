@@ -118,14 +118,38 @@
     },
     /* Save an order in Supabase via the server-side create_order() function.
        Prices/fees are recomputed on the server; the client only sends ids, quantities and options. */
-    async createOrder(customer, deliveryId, lines, cartNotes) {
+    async createOrder(customer, deliveryId, lines, cartNotes, extra) {
       const client = await this.init();
       const items = lines.map(l => ({ id: l.id, qty: l.qty, option: l.option || null, comp: l.comp || null }));
       const { data, error } = await client.rpc('create_order', {
-        payload: { customer, delivery: deliveryId, cart_notes: cartNotes || '', items }
+        payload: Object.assign({ customer, delivery: deliveryId, cart_notes: cartNotes || '', items }, extra || {})
       });
       if (error) throw error;
       return data;
+    },
+    async checkDiscount(code, subtotal) {
+      const client = await this.init();
+      const { data, error } = await client.rpc('check_discount', { p_code: code, p_subtotal: subtotal });
+      if (error) throw error;
+      return data;
+    },
+    async getReviews(slug) {
+      const client = await this.init();
+      let q = client.from('reviews').select('id,product_slug,name,rating,comment,created_at').order('created_at', { ascending: false }).limit(30);
+      if (slug) q = q.eq('product_slug', slug);
+      const { data, error } = await q;
+      if (error) throw error;
+      return data || [];
+    },
+    async submitReview(slug, name, rating, comment) {
+      const client = await this.init();
+      const { error } = await client.rpc('submit_review', { p_slug: slug || '', p_name: name, p_rating: rating, p_comment: comment });
+      if (error) throw error;
+    },
+    async submitForm(kind, payload) { // kind: 'subscription' | 'quote'
+      const client = await this.init();
+      const { error } = await client.rpc('submit_' + kind, { p: payload });
+      if (error) throw error;
     },
     async trackOrder(number, phone) {
       const client = await this.init();
@@ -154,11 +178,14 @@
     },
     async listOrders() {
       const client = await this.init();
-      const cols = 'id,order_number,customer_name,customer_phone,customer_city,customer_address,customer_notes,delivery_method,subtotal,delivery_fee,total,status,created_at,order_items(product_name,quantity,unit_price,line_total,options)';
+      const base = 'id,order_number,customer_name,customer_phone,customer_city,customer_address,customer_notes,delivery_method,subtotal,delivery_fee,total,status,created_at,order_items(product_name,quantity,unit_price,line_total,options)';
+      const extra = ',delivery_date,delivery_slot,discount_code,discount_amount,is_gift,gift_to,gift_message';
+      let cols = base.replace(',order_items(', extra + ',order_items(');
       let all = [];
       for (let from = 0; from < 20000; from += 1000) {
-        const { data, error } = await client.from('orders').select(cols)
+        let { data, error } = await client.from('orders').select(cols)
           .order('created_at', { ascending: false }).range(from, from + 999);
+        if (error && cols !== base) { cols = base; ({ data, error } = await client.from('orders').select(cols).order('created_at', { ascending: false }).range(from, from + 999)); }
         if (error) throw error;
         all = all.concat(data || []);
         if (!data || data.length < 1000) break;

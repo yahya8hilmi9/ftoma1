@@ -87,6 +87,15 @@
     return d.fee;
   };
 
+  /* ---------- كود الخصم (كيتحقق منو السيرفر) ---------- */
+  F.discount = { code: '', amount: 0, kind: '', value: 0 };
+  F.clearDiscount = () => { F.discount = { code: '', amount: 0, kind: '', value: 0 }; };
+  F.orderTotal = function (deliveryId) {
+    const sub = F.cart.subtotal();
+    const disc = Math.min(F.discount.amount || 0, sub);
+    return { sub, disc, fee: F.deliveryFee(deliveryId, sub), total: sub - disc + F.deliveryFee(deliveryId, sub) };
+  };
+
   F.lineLabel = function (l) {
     if (!l.option) return '';
     const f = F.fillingById(l.option);
@@ -130,9 +139,11 @@
     return `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(text)}`;
   };
 
-  F.orderMessage = function (customer, deliveryId) {
+  F.orderMessage = function (customer, deliveryId, extra) {
+    extra = extra || {};
     const lines = F.cart.lines();
     const sub = F.cart.subtotal();
+    const disc = Math.min(F.discount.amount || 0, sub);
     const d = cfg.delivery.find(x => x.id === deliveryId) || cfg.delivery[0];
     const fee = F.deliveryFee(d.id, sub);
     let t = `🌿 *طلب جديد من موقع فطومة*\n\n`;
@@ -142,8 +153,14 @@
       t += `• ${l.qty} × ${l.item.ar}${opt ? ' (' + opt + ')' : ''}${mod} — ${F.unitPrice(l) * l.qty} ${cfg.currency}\n`;
     });
     t += `\nالمجموع الفرعي: ${sub} ${cfg.currency}`;
+    if (disc) t += `\nالخصم (${F.discount.code}): -${disc} ${cfg.currency}`;
     t += `\nالتوصيل (${d.ar}): ${fee === 0 ? 'مجاني' : fee + ' ' + cfg.currency}`;
-    t += `\n*المجموع: ${sub + fee} ${cfg.currency}*\n`;
+    t += `\n*المجموع: ${sub - disc + fee} ${cfg.currency}*\n`;
+    if (extra.delivery_date) {
+      const sl = (cfg.slots || []).find(x => x.id === extra.delivery_slot);
+      t += `\n📅 موعد التوصيل: ${extra.delivery_date}${sl ? ' · ' + sl.ar : ''}`;
+    }
+    if (extra.gift) t += `\n🎁 هدية${extra.gift_to ? ' لـ ' + extra.gift_to : ''}${extra.gift_message ? ': «' + extra.gift_message + '»' : ''}`;
     if (F.cart.notes()) t += `\nملاحظات السلة: ${F.cart.notes()}`;
     if (customer) {
       t += `\n\n👤 ${customer.name}\n📞 ${customer.phone}\n📍 ${customer.city} — ${customer.address}`;

@@ -20,6 +20,21 @@ window.FATOUMA.config = {
 
   currency: 'د.م',
 
+  // رابط الموقع (للمشاركة والـ SEO)
+  siteUrl: 'https://yahya8hilmi9.github.io/ftoma1/',
+
+  // الطلبات قبل هاد الساعة (توقيت المغرب) كتتوصل نفس النهار داخل المدينة
+  cutoffHour: 18,
+  // مخزون أقل من أو يساوي هاد الرقم كيبان "باقي غير ..."
+  lowStock: 5,
+
+  // مواعيد التوصيل
+  slots: [
+    { id: 'morning',   ar: 'الصباح (9:00 – 12:00)' },
+    { id: 'afternoon', ar: 'بعد الظهر (12:00 – 17:00)' },
+    { id: 'evening',   ar: 'المساء (17:00 – 20:00)' }
+  ],
+
   // خيارات التوصيل
   delivery: [
     { id: 'city',   ar: 'توصيل داخل المدينة',        fr: 'Livraison ville',     fee: 25, freeFrom: 300, eta: 'نفس اليوم / الغد' },

@@ -34,3 +34,10 @@ js/app.js             ← Router والأحداث والأنيميشن
 3. الرابط: `https://USERNAME.github.io/REPO/` — زيدو فـ Supabase ← Authentication ← URL Configuration.
 4. ملاحظة: `_headers` و `vercel.json` ما كيخدموش فـ GitHub Pages (غير CSP meta). للحماية الكاملة استعمل Cloudflare Pages/Netlify/Vercel.
 5. ما تحط أبدا service_role / sb_secret / مفتاح CallMeBot فـ الـ repo.
+
+## الميزات الجديدة (v2)
+- **SQL**: شغّل `backend/features.sql` مرة وحدة فـ Supabase > SQL Editor (موعد التوصيل، كودات الخصم، الهدية، التقييمات، الاشتراكات، طلبات الشركات).
+- **Admin** تبويبات جديدة: التحضير (قابلة للطباعة)، الزبناء، الخصومات، التقييمات، الاشتراكات والعروض + تنبيه صوتي للطلبات الجديدة.
+- **الموقع**: عدّاد آخر وقت للطلب، مخزون قليل، صفحات المناسبات (`#/occasion/ramadan|eid|wedding|aqiqah`)، `#/breakfast`، `#/corporate`، إعادة طلب، مشاركة واتساب، PWA، SEO، تبديل عربي/Français.
+- بعد تغيير المنتجات شغّل `node tools/build-seo.js` باش تتجدد صفحات المشاركة (`share/`) وsitemap.
+- تواريخ رمضان والأعياد تقريبية: عدّلها فـ `js/features.js` (`F.occasionPages`).

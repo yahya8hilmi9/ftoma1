@@ -1,0 +1,53 @@
+/* FATOUMA — أنماط الميزات الجديدة */
+.lang-btn { border: 1.5px solid var(--gold); background: transparent; color: inherit; border-radius: 99px; padding: 6px 12px; font-weight: 700; font-size: 13px; cursor: pointer; }
+.lang-btn:hover { background: rgba(184, 137, 58, .2); }
+.cutoff-pill { display: inline-block; margin: 8px 0; padding: 6px 14px; border-radius: 99px; background: rgba(184, 137, 58, .18); color: var(--brown); font-size: 14px; font-weight: 700; }
+.cutoff-pill:empty { display: none; }
+.badge-low { background: var(--terracotta); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+fieldset.when, fieldset.gift { border: 1.5px solid var(--gold-light); border-radius: var(--radius-sm); padding: 12px 14px; }
+fieldset.when legend { font-weight: 700; padding: 0 6px; }
+.field input[type=date], .field select, .form select { width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--gold-light); background: var(--cream); font: inherit; }
+.gift-toggle { display: flex; gap: 8px; align-items: center; font-weight: 700; }
+#gift-fields { display: grid; gap: 12px; margin-top: 12px; }
+#gift-fields[hidden] { display: none; }
+.code-row { display: flex; gap: 8px; margin-top: 14px; }
+.code-row input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--gold-light); background: var(--cream); text-transform: uppercase; }
+.code-msg { display: block; min-height: 18px; margin-top: 4px; color: #8a2a18; }
+.sum-row.disc b { color: var(--olive-dark); }
+.promo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.promo { display: grid; gap: 4px; padding: 18px 20px; border-radius: var(--radius); background: var(--cream); color: var(--brown); box-shadow: var(--shadow); text-decoration: none; transition: transform .25s var(--ease); }
+.promo:hover { transform: translateY(-3px); }
+.promo b { font-size: 19px; }
+.promo span { color: var(--brown-soft); font-size: 14px; }
+.countdown { display: inline-flex; flex-direction: column; gap: 4px; margin-top: 14px; padding: 12px 22px; border-radius: var(--radius); background: rgba(255, 253, 248, .85); color: var(--brown); }
+.countdown .cd-label { font-size: 13px; color: var(--brown-soft); }
+.countdown b { font-family: var(--f-display); font-size: 26px; color: var(--terracotta-dark); margin-inline: 4px; }
+.occ-head .ic { color: var(--gold); }
+.tips { list-style: none; padding: 0; margin: 0 auto 22px; display: grid; gap: 8px; max-width: 640px; }
+.tips li { display: flex; gap: 8px; align-items: center; }
+.tips .ic { color: var(--olive); flex: none; }
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 28px; }
+.narrow { max-width: 680px; }
+.reviews { margin: 8px 0; }
+.review-cards { list-style: none; padding: 0; margin: 0 0 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.review { background: var(--white); border: 1px solid var(--gold-light); border-radius: var(--radius); padding: 16px; }
+.review p { margin: 6px 0; }
+.review small { color: var(--brown-soft); }
+.stars { color: var(--gold); letter-spacing: 2px; }
+.stars span { opacity: .3; }
+.review-form-wrap { max-width: 520px; margin: 0 auto; }
+.review-form-wrap summary { cursor: pointer; display: inline-block; }
+.review-form { margin-top: 12px; }
+.form-ok { margin: 0; padding: 10px 14px; border-radius: 10px; background: #e8f0d8; color: #3b4a1c; }
+.form-msg[hidden] { display: none; }
+.track-when { margin: 8px 0; color: var(--brown-soft); }
+.reviews .center, .center.muted { text-align: center; }
+body.lang-fr { font-family: var(--f-latin), var(--f-body); }
+body.lang-fr .brand-ar { font-family: var(--f-display); }
+@media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } }
+@media print { .lang-btn, .wa-float { display: none !important; } }
+
+.occ-head .ic { display: block; margin: 0 auto 6px; }
+body.lang-fr .h1-ar { font-size: clamp(48px, 8vw, 96px); overflow-wrap: normal; word-break: keep-all; }
+body.lang-fr .main-nav a { font-size: 15px; }

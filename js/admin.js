@@ -57,12 +57,36 @@
     $('#btn-logout').hidden = false;
     await load();
     clearInterval(timer);
-    timer = setInterval(() => { if (!document.hidden && tab !== 'admins' && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) load(true); }, 60000);
+    timer = setInterval(() => { if (tab !== 'admins' && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) load(true); }, 30000);
   }
+
+  /* ---------- تنبيه الطلبات الجديدة ---------- */
+  const soundOn = () => { try { return localStorage.getItem('fatouma_admin_sound') === '1'; } catch (e) { return false; } };
+  function beep() {
+    try {
+      const A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+      const c = new A();
+      [660, 880, 1100].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f; o.connect(g); g.connect(c.destination);
+        const t = c.currentTime + i * 0.18; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16); o.start(t); o.stop(t + 0.17); });
+    } catch (e) {}
+  }
+  let maxSeen = null; const baseTitle = document.title;
+  function notifyNew(list) {
+    const top = list.reduce((m, o) => Math.max(m, Number(o.order_number)), 0);
+    if (maxSeen !== null && top > maxSeen) {
+      const fresh = list.filter(o => Number(o.order_number) > maxSeen);
+      toast('🛎️ طلب جديد #' + fresh.map(o => o.order_number).join(', #'));
+      document.title = '(' + fresh.length + ') طلب جديد · ' + baseTitle;
+      if (soundOn()) { beep(); try { if (window.Notification && Notification.permission === 'granted') new Notification('فطومة: طلب جديد #' + fresh[0].order_number, { body: fresh[0].customer_name + ' — ' + money(fresh[0].total) }); } catch (e) {} }
+    }
+    maxSeen = Math.max(maxSeen || 0, top);
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) document.title = baseTitle; });
 
   async function load(silent) {
     try {
       [orders, products] = await Promise.all([S.listOrders(), S.listAllProducts()]);
+      notifyNew(orders);
     } catch (e) {
       console.error(e);
       if (!silent) root.innerHTML = '<p class="form-error">تعذّر تحميل البيانات. تأكد أن حسابك مسجل كمسؤول.</p>';
@@ -91,12 +115,15 @@
         <button class="btn btn-sm ${tab === 'orders' ? 'btn-primary' : 'btn-ghost'}" data-tab="orders">الطلبات</button>
         <button class="btn btn-sm ${tab === 'stock' ? 'btn-primary' : 'btn-ghost'}" data-tab="stock">المنتجات والمخزون</button>
         <button class="btn btn-sm ${tab === 'stats' ? 'btn-primary' : 'btn-ghost'}" data-tab="stats">الإحصائيات</button>
+        ${[['prep', '🧾 التحضير'], ['customers', '👥 الزبناء'], ['codes', '🏷️ الخصومات'], ['reviews', '⭐ التقييمات'], ['requests', '📩 الاشتراكات والعروض']].map(([k, l]) => `<button class="btn btn-sm ${tab === k ? 'btn-primary' : 'btn-ghost'}" data-tab="${k}">${l}</button>`).join('')}
         <button class="btn btn-sm ${tab === 'admins' ? 'btn-primary' : 'btn-ghost'}" data-tab="admins">المسؤولون</button>
         <span class="spacer"></span>
+        <button class="btn btn-sm btn-ghost" id="btn-sound" title="تنبيه صوتي للطلبات الجديدة">${soundOn() ? '🔔 التنبيه شغال' : '🔕 فعّل التنبيه'}</button>
         <button class="btn btn-sm btn-ghost" id="btn-refresh">تحديث</button>
       </div>
       <div id="panel"></div>`;
-    ({ orders: renderOrders, stock: renderStock, stats: renderStats, admins: renderAdmins }[tab] || renderOrders)();
+    const extra = F.adminTabs && F.adminTabs[tab];
+    ({ orders: renderOrders, stock: renderStock, stats: renderStats, admins: renderAdmins }[tab] || extra || renderOrders)();
   }
 
   // محتوى الـ Pack: التركيب المعدّل إن وُجد، وإلا التركيب الافتراضي للـ Pack
@@ -150,11 +177,13 @@
             <span>📞 <a href="tel:${esc(o.customer_phone)}">${esc(o.customer_phone)}</a> · <a href="${wa}" target="_blank" rel="noopener">واتساب</a></span>
             <span>📍 ${esc(o.customer_city)} — ${esc(o.customer_address)}</span>
             <span>🚚 ${esc(DELIVERY[o.delivery_method] || o.delivery_method)}</span>
+            ${o.delivery_date ? `<span class="when">📅 <b>${esc(o.delivery_date)}</b>${F.slotName(o.delivery_slot) ? ' · ' + esc(F.slotName(o.delivery_slot)) : ''}</span>` : ''}
+            ${o.is_gift ? `<span class="gift-tag">🎁 هدية${o.gift_to ? ' لـ ' + esc(o.gift_to) : ''}${o.gift_message ? ' — «' + esc(o.gift_message) + '»' : ''}</span>` : ''}
           </div>
           ${o.customer_notes ? `<div class="note">📝 ${esc(o.customer_notes)}</div>` : ''}
           <ul>${(o.order_items || []).map(itemLine).join('')}</ul>
           <div class="order-foot">
-            <span>التوصيل: ${o.delivery_fee > 0 ? money(o.delivery_fee) : 'مجاني'} · <span class="tot">${money(o.total)}</span></span>
+            <span>التوصيل: ${o.delivery_fee > 0 ? money(o.delivery_fee) : 'مجاني'}${Number(o.discount_amount) ? ' · خصم ' + esc(o.discount_code || '') + ' -' + money(o.discount_amount) : ''} · <span class="tot">${money(o.total)}</span></span>
             <button class="btn btn-sm btn-ghost danger" data-del-order="${o.id}">حذف</button>
             <label>الحالة <select data-order="${o.id}">${Object.keys(STATUS).map(k => `<option value="${k}" ${k === o.status ? 'selected' : ''}>${STATUS[k]}</option>`).join('')}</select></label>
           </div>
@@ -440,11 +469,17 @@
   });
 
   document.addEventListener('click', async e => {
-    const t = e.target.closest('[data-tab],[data-ofilter],#btn-refresh,#btn-logout,[data-save],[data-period],#btn-csv,[data-del-order],#btn-del-cancelled,[data-rm-admin],[data-edit-product]');
+    const t = e.target.closest('#btn-sound,[data-tab],[data-ofilter],#btn-refresh,#btn-logout,[data-save],[data-period],#btn-csv,[data-del-order],#btn-del-cancelled,[data-rm-admin],[data-edit-product]');
     if (!t) return;
     if (t.hasAttribute('data-edit-product')) return openProduct(t.dataset.editProduct);
     if (t.dataset.period) { period = t.dataset.period; return renderStats(); }
     if (t.id === 'btn-csv') return downloadCSV();
+    if (t.id === 'btn-sound') {
+      const on = !soundOn();
+      try { localStorage.setItem('fatouma_admin_sound', on ? '1' : '0'); } catch (x) {}
+      if (on) { beep(); try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (x) {} }
+      return render();
+    }
     if (t.dataset.delOrder) {
       const o = orders.find(x => x.id === t.dataset.delOrder);
       if (!o || !confirm('حذف الطلب #' + o.order_number + ' نهائياً؟ هاد العملية ما كتتراجعش.\n(المخزون ما كيرجعش تلقائياً إلا ألغيتي الطلب قبل.)')) return;
@@ -510,5 +545,10 @@
     catch (ex) { console.error(ex); e.target.value = prev; toast('تعذّر تغيير الحالة'); }
   });
 
+  F.adminCtx = {
+    S, esc, money, toast, STATUS, DELIVERY, packContents, compText,
+    get orders() { return orders; }, get products() { return products; },
+    panel: () => $('#panel'), rerender: () => render()
+  };
   boot();
 })();

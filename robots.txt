@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Sitemap: https://yahya8hilmi9.github.io/ftoma1/sitemap.xml

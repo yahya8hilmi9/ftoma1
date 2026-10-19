@@ -20,4 +20,8 @@ assert(F.cart.count() === 2, 'ajout et comptage des articles dans le panier');
 assert(F.cart.subtotal() === 8, 'calcul du sous-total');
 const msg = F.orderMessage({name:'Test Client',phone:'0612345678',city:'Casablanca',address:'Rue Test'}, 'city');
 assert(msg.includes('Test Client') && msg.includes('8 د.م'), 'message de commande contient client et montant');
+F.discount = { code: 'T10', amount: 3, kind: 'percent', value: 10 };
+const t = F.orderTotal('city');
+assert(t.sub === 8 && t.disc === 3 && t.fee === 25 && t.total === 30, 'total avec remise = sous-total - remise + livraison');
+assert(F.orderMessage({name:'T',phone:'0612345678',city:'C',address:'adresse 1'}, 'city', {delivery_date:'2026-12-01', delivery_slot:'morning', gift:true, gift_to:'Mama'}).includes('هدية'), 'message WhatsApp contient cadeau');
 console.log('All smoke tests passed.');

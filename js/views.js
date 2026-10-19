@@ -24,6 +24,7 @@
           <a href="#/track">تتبع طلبك</a>
         </nav>
         <div class="header-actions">
+          <button class="lang-btn" data-action="toggle-lang" type="button" aria-label="Langue / اللغة">${F.lang === 'fr' ? 'عربية' : 'FR'}</button>
           <a class="icon-btn" href="#/shop?focus=1" aria-label="بحث">${F.icon('search')}</a>
           <button class="cart-btn" data-action="open-cart" aria-label="السلة">
             ${F.icon('bag')}<span class="cart-count" id="cart-count">0</span>
@@ -52,7 +53,10 @@
             <li><a href="#/category/packs-fatayer">Les Packs</a></li>
             <li><a href="#/" data-scroll="occasions">المناسبات</a></li>
             <li><a href="#/" data-scroll="about">من نحن</a></li>
+            <li><a href="#/breakfast">اشتراك فطور الأسبوع</a></li>
+            <li><a href="#/corporate">طلبات الشركات والمناسبات</a></li>
             <li><a href="#/track">تتبع طلبك</a></li>
+            <li><button type="button" class="link-btn" id="install-btn" data-action="install" hidden>📲 ثبّت الموقع كتطبيق</button></li>
           </ul>
         </div>
         <div>
@@ -90,6 +94,7 @@
           <span class="kicker kicker-gold">Fatouma · فطائر وحلويات مغربية</span>
           <h1><span class="h1-ar">فطومة</span><span class="h1-sub">مذاق مغربي أصيل، محضّر بحب</span></h1>
           <p>مسمن، حرشة، بغرير وحلويات تقليدية بأيادٍ مغربية، من مطبخنا إلى مائدتك.</p>
+          <p class="cutoff-pill js-cutoff" aria-live="polite"></p>
           <div class="hero-cta">
             <a class="btn btn-primary" href="#/" data-scroll="categories">اكتشف المنتجات</a>
             <a class="btn btn-light" href="#/" data-scroll="finder">اطلب الآن</a>
@@ -144,11 +149,26 @@
         ${F.sectionTitle('Occasions', 'لكل مناسبة Pack', 'من فطور الأحد إلى العرس، عندنا ما يليق بالمائدة.')}
         <div class="occ-grid">
           ${F.occasions.map(o => `
-            <a class="occ reveal" href="#/shop?occ=${o.id}">
+            <a class="occ reveal" href="${F.occasionPageFor(o.id) ? '#/occasion/' + F.occasionPageFor(o.id) : '#/shop?occ=' + o.id}">
               ${F.icon(o.icon, 34)}
               <strong>${o.ar}</strong><span>${o.fr}</span>
             </a>`).join('')}
         </div>
+      </div>
+    </section>
+
+    <section class="section section-olive zellige promo-band">
+      <div class="container promo-grid">
+        <a class="promo reveal" href="#/breakfast"><b>☀️ فطور الأسبوع</b><span>اشترك وتوصلك فطورة مغربية طازجة كل أسبوع</span></a>
+        <a class="promo reveal" href="#/corporate"><b>🏢 للشركات والمناسبات</b><span>طلبات كبيرة؟ عرض ثمن في 24 ساعة</span></a>
+        <a class="promo reveal" href="#/occasion/ramadan"><b>🌙 رمضان والأعياد</b><span>تحضّر للمناسبة من دابا</span></a>
+      </div>
+    </section>
+
+    <section class="section" id="reviews">
+      <div class="container">
+        ${F.sectionTitle('Avis', 'آراء زبنائنا', 'شنو قالو علينا. وإلا جربتي فطومة، شاركنا رأيك.')}
+        ${V.reviewsBlock('')}
       </div>
     </section>
 
@@ -273,8 +293,10 @@
               <button class="btn btn-primary" data-action="add" type="button">Ajouter au panier</button>
             </div>
             <button class="btn btn-wa" type="button" data-action="wa-item">${F.icon('whatsapp', 20)} اطلب مباشرة عبر واتساب</button>
+            <button class="btn btn-ghost" type="button" data-action="share-item">${F.icon('whatsapp', 18)} شارك هاد المنتج</button>
           </div>
         </div>
+        <div class="related">${V.reviewsBlock(it.id)}</div>
         ${related.length ? `<div class="related"><h3>قد يعجبك أيضاً</h3>${F.grid(related)}</div>` : ''}
       </div>
     </section>`;
@@ -298,6 +320,22 @@
           <div class="field"><label for="c-city">المدينة</label><input id="c-city" name="city" required autocomplete="address-level2"><small class="err"></small></div>
           <div class="field"><label for="c-address">العنوان</label><input id="c-address" name="address" required autocomplete="street-address"><small class="err"></small></div>
           <div class="field"><label for="c-notes">ملاحظات (اختياري)</label><textarea id="c-notes" name="notes" rows="2"></textarea></div>
+          <fieldset class="delivery when">
+            <legend>📅 موعد التوصيل (اختياري)</legend>
+            <p class="cutoff-pill js-cutoff"></p>
+            <div class="row2">
+              <div class="field"><label for="c-date">اليوم</label><input id="c-date" name="delivery_date" type="date" min="${F.minDeliveryDate()}" max="${F.ymdPlus(60)}"><small class="err"></small></div>
+              <div class="field"><label for="c-slot">الوقت</label><select id="c-slot" name="delivery_slot"><option value="">أقرب وقت ممكن</option>${(cfg.slots || []).map(x => `<option value="${x.id}">${x.ar}</option>`).join('')}</select></div>
+            </div>
+          </fieldset>
+          <fieldset class="delivery gift">
+            <label class="field-inline gift-toggle"><input type="checkbox" name="gift" id="c-gift"> 🎁 هاد الطلب هدية</label>
+            <div id="gift-fields" hidden>
+              <div class="field"><label for="c-gto">لمن؟</label><input id="c-gto" name="gift_to" maxlength="80" placeholder="اسم الشخص المهدى إليه"></div>
+              <div class="field"><label for="c-gmsg">رسالة تتكتب على البطاقة</label><textarea id="c-gmsg" name="gift_message" rows="2" maxlength="300" placeholder="عيد مبارك سعيد 🌿"></textarea></div>
+              <small class="muted">غادي نغلفو الطلب كهدية وما كنكتبوش الثمن على البطاقة.</small>
+            </div>
+          </fieldset>
           <fieldset class="delivery">
             <legend>طريقة التوصيل</legend>
             ${cfg.delivery.map((d, i) => `
@@ -320,14 +358,15 @@
 
   V.summary = (deliveryId) => {
     const lines = F.cart.lines();
-    const sub = F.cart.subtotal();
-    const fee = F.deliveryFee(deliveryId, sub);
+    const { sub, disc, fee, total } = F.orderTotal(deliveryId);
     return `
       <h3>ملخص الطلب</h3>
       <ul>${lines.map(l => `<li><span>${l.qty} × ${l.item.ar}${(l.comp && l.item.comp) ? ' (معدّل)' : ''}${F.lineLabel(l) ? ' · ' + F.lineLabel(l) : ''}</span><b>${F.money(F.unitPrice(l) * l.qty)}</b></li>`).join('')}</ul>
       <div class="sum-row"><span>المجموع الفرعي</span><b>${F.money(sub)}</b></div>
+      ${disc ? `<div class="sum-row disc"><span>خصم (${F.discount.code}) <button type="button" class="link-btn" data-action="clear-code">✕</button></span><b>-${F.money(disc)}</b></div>` : ''}
       <div class="sum-row"><span>التوصيل</span><b>${fee ? F.money(fee) : 'مجاني'}</b></div>
-      <div class="sum-row sum-total"><span>المجموع</span><b>${F.money(sub + fee)}</b></div>`;
+      <div class="sum-row sum-total"><span>المجموع</span><b>${F.money(total)}</b></div>
+      ${disc ? '' : `<div class="code-row"><input id="c-code" placeholder="كود الخصم" autocomplete="off" maxlength="30"><button type="button" class="btn btn-ghost btn-sm" data-action="apply-code">تطبيق</button></div><small class="code-msg" id="code-msg" role="status"></small>`}`;
   };
 
   V.success = (params) => {
@@ -337,6 +376,7 @@
       <div class="done">${F.icon('check', 40)}</div>
       <h1>شكراً لك! 🌿</h1>
       <p>${n ? `تسجل طلبك فالموقع. رقم الطلب: <b>#${String(n).replace(/[^0-9]/g, '')}</b>. غادي نتواصلو معك لتأكيد الطلب والتوصيل.` : 'فتحنا واتساب بطلبك. غادي نتواصلو معك لتأكيد الطلب والتوصيل.'}</p>
+      ${n ? `<p class="muted">احتفظ برقم الطلب باش تتبعو 🌿</p>` : ''}
       ${n ? `<p><a class="btn btn-ghost" href="#/track?n=${String(n).replace(/[^0-9]/g, '')}">تتبع طلبك</a></p>` : ''}
       <a class="btn btn-primary" href="#/">العودة للرئيسية</a></div></section>`;
   };
@@ -377,10 +417,13 @@
     return `<div class="track-card">
       <h2>طلب #${Number(o.order_number)}</h2>
       <small>${new Date(o.created_at).toLocaleString('fr-MA')}</small>
+      ${o.delivery_date ? `<p class="track-when">📅 موعد التوصيل: <b>${String(o.delivery_date).replace(/[^0-9-]/g, '')}</b>${F.slotName(o.delivery_slot) ? ' · ' + F.slotName(o.delivery_slot) : ''}</p>` : ''}
       ${steps}
       <ul class="track-items">${lines}</ul>
       <div class="track-total"><span>التوصيل</span><b>${Number(o.delivery_fee) ? money(o.delivery_fee) : 'مجاني'}</b></div>
+      ${Number(o.discount_amount) ? `<div class="track-total"><span>الخصم</span><b>-${money(o.discount_amount)}</b></div>` : ''}
       <div class="track-total big"><span>المجموع</span><b>${money(o.total)}</b></div>
+      <button type="button" class="btn btn-primary btn-block" data-action="reorder">🔁 عاود نفس الطلب</button>
     </div>`;
   };
 
@@ -414,6 +457,7 @@
         <ul class="cart-list">${lines.map(F.cartLine).join('')}</ul>
         <div class="drawer-foot">
           ${city.freeFrom ? `<p class="free-note">${left ? `باقي ${F.money(left)} للتوصيل المجاني داخل المدينة` : '🎉 توصيلك داخل المدينة مجاني'}</p>` : ''}
+          <p class="cutoff-pill js-cutoff"></p>
           <label class="notes"><span>ملاحظات للطلب</span><textarea id="cart-notes" rows="2" placeholder="مثال: بدون سكر، تغليف هدية…">${F.cart.notes() || ''}</textarea></label>
           <div class="sum-row sum-total"><span>المجموع</span><b>${F.money(sub)}</b></div>
           <a class="btn btn-primary btn-block" href="#/checkout" data-action="close-cart">Commander</a>

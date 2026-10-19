@@ -104,3 +104,14 @@
 .admin-body .header-inner { justify-content: space-between; gap: 10px; }
 .admin-body .brand { position: static; margin: 0; width: auto; }
 @media (max-width: 480px) { .admin-body .brand-ar { font-size: 24px; } .admin-body .brand-fr { letter-spacing: .2em; font-size: 10px; } .admin-body .header-actions { gap: 6px; } }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.order-meta .when, .order-meta .gift-tag { color: var(--terracotta-dark); font-weight: 700; }
+.prep-orders { list-style: none; padding: 0; display: grid; gap: 6px; }
+.toolbar input[type=date], .admin-table select { padding: 8px 12px; border-radius: 999px; border: 1.5px solid var(--gold-light); background: var(--white); }
+.badge { position: static; display: inline-block; }
+@media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } }
+@media print {
+  .site-header, .admin-head, .stats, .tabs, .no-print, .admin-badge, #toast { display: none !important; }
+  .admin-main { padding: 0; } .card-box { box-shadow: none; }
+}
+.tabs { flex-wrap: wrap !important; overflow: visible !important; }

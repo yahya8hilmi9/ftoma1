@@ -41,6 +41,9 @@
     else if (path === '/admin') { location.replace('admin.html'); return; }
     else if (path === '/success') html = F.views.success(params);
     else if (path === '/track') html = F.views.track(params);
+    else if (path.indexOf('/occasion/') === 0) html = F.views.occasion(path.split('/')[2]);
+    else if (path === '/breakfast') html = F.views.breakfast();
+    else if (path === '/corporate') html = F.views.corporate();
     else html = F.views.notFound();
     main.innerHTML = html;
     closeMenu();
@@ -51,6 +54,15 @@
     if (path === '/shop' && params.focus) { const q = $('#shop-q'); if (q) q.focus(); }
     observe();
     bindWalkIn(path === '/');
+    afterRender(path);
+  }
+
+  function afterRender(path) {
+    F.seoFor(path);
+    F.tickCutoff(); F.tickCountdown();
+    if (F.i18n) F.i18n.apply();
+    if (document.querySelector('.reviews')) F.fillReviews().then(() => F.i18n && F.i18n.apply());
+    F.showInstall();
   }
 
   /* الدخول للبيت: كلما نزل الزائر، كبرات صورة الباب وكأنه داخل للدار */
@@ -113,10 +125,12 @@
 
   F.cart.on(() => {
     renderDrawer();
+    if (F.discount.code) F.applyCode(F.discount.code, true);
+    if (F.i18n) F.i18n.apply();
     const sum = $('#summary');
     if (sum) {
       const d = $('input[name=delivery]:checked');
-      if (F.cart.lines().length) sum.innerHTML = F.views.summary(d ? d.value : 'city'); else render();
+      if (F.cart.lines().length) { sum.innerHTML = F.views.summary(d ? d.value : 'city'); if (F.i18n) F.i18n.apply(); } else render();
     }
   });
 
@@ -136,6 +150,7 @@
     const card = el.closest('[data-id]');
 
     switch (a) {
+      case 'toggle-lang': F.i18n.toggle(); break;
       case 'toggle-menu': document.body.classList.toggle('menu-open'); break;
       case 'open-cart': openCart(); break;
       case 'close-cart': closeCart(); break;
@@ -273,7 +288,9 @@
     btn.disabled = true; out.innerHTML = '<p class="muted">...</p>';
     try {
       const o = await F.supabase.trackOrder(num, phone);
+      F.lastTracked = o;
       out.innerHTML = F.views.trackResult(o);
+      if (F.i18n) F.i18n.apply();
     } catch (err) {
       out.innerHTML = '<div class="track-card track-miss">' + (/too many/i.test(String(err && err.message)) ? 'محاولات بزاف. عاود من بعد شوية.' : 'وقع مشكل فـ الاتصال. عاود من بعد.') + '</div>';
     } finally { btn.disabled = false; }
@@ -298,11 +315,15 @@
       field.querySelector('.err').textContent = r === true ? '' : r;
       if (r !== true) ok = false;
     });
+    if (data.delivery_date && data.delivery_date < F.minDeliveryDate()) {
+      const fl = f.elements.delivery_date.closest('.field'); fl.classList.add('invalid'); fl.querySelector('.err').textContent = 'أقرب موعد ممكن هو ' + F.minDeliveryDate();
+      f.elements.delivery_date.focus(); return;
+    } else if (f.elements.delivery_date) f.elements.delivery_date.closest('.field').classList.remove('invalid');
     if (!ok) { const bad = $('.field.invalid input', f); if (bad) bad.focus(); return; }
     const mode = (e.submitter && e.submitter.value) || 'wa';
     if (data.website) { location.hash = '#/success'; return; } // honeypot: bots only
     if (mode === 'site') return submitSiteOrder(f, data);
-    const msg = F.orderMessage(data, data.delivery);
+    const msg = F.orderMessage(data, data.delivery, extraOf(data));
     // لا نفرغ السلة هنا: فتح WhatsApp لا يعني أن الزبون أرسل الطلب.
     const waWindow = window.open(F.waLink(msg), '_blank');
     if (!waWindow) {
@@ -311,6 +332,15 @@
     }
     location.hash = '#/success';
   });
+
+  function extraOf(data) {
+    const gift = data.gift === 'on';
+    return {
+      delivery_date: data.delivery_date || null, delivery_slot: data.delivery_slot || null,
+      discount_code: F.discount.code || null,
+      gift, gift_to: gift ? (data.gift_to || '').trim() : null, gift_message: gift ? (data.gift_message || '').trim() : null
+    };
+  }
 
   /* ---------- طلب داخل الموقع: يُسجَّل في Supabase ---------- */
   async function submitSiteOrder(f, data) {
@@ -321,13 +351,15 @@
     setBusy(true);
     try {
       const cust = { name: data.name.trim(), phone: data.phone, city: data.city.trim(), address: data.address.trim(), notes: (data.notes || '').trim() };
-      const res = await F.supabase.createOrder(cust, data.delivery, F.cart.lines(), F.cart.notes());
-      F.cart.clear();
+      const res = await F.supabase.createOrder(cust, data.delivery, F.cart.lines(), F.cart.notes(), extraOf(data));
+      F.clearDiscount(); F.cart.clear();
       renderDrawer();
       location.hash = '#/success?n=' + encodeURIComponent(res.order_number);
     } catch (ex) {
       console.error('[Supabase] order failed', ex);
-      err.textContent = 'تعذّر تسجيل الطلب فالموقع. حاول مرة أخرى أو أرسل الطلب عبر واتساب. السلة ديالك محفوظة.';
+      err.textContent = /invalid code/i.test(String(ex && ex.message)) ? 'كود الخصم لم يعد صالحاً. أزله وعاود المحاولة.'
+        : /invalid date/i.test(String(ex && ex.message)) ? 'موعد التوصيل غير صالح. اختر تاريخ آخر.'
+        : 'تعذّر تسجيل الطلب فالموقع. حاول مرة أخرى أو أرسل الطلب عبر واتساب. السلة ديالك محفوظة.';
       err.hidden = false;
       setBusy(false);
     }
@@ -338,12 +370,15 @@
     $('#header').classList.toggle('scrolled', window.scrollY > 24);
   }, { passive: true });
   window.addEventListener('hashchange', render);
+  setInterval(() => { F.tickCutoff(); F.tickCountdown(); }, 30000);
+  setInterval(F.tickCountdown, 60000);
 
   document.addEventListener('DOMContentLoaded', () => {
     $('#site-header').innerHTML = F.views.header();
     $('#site-footer').innerHTML = F.views.footer();
     renderDrawer();
     render();
+    F.tickCutoff();
     // Pull live data from Supabase (catalog + site settings), then re-render. Local data is the fallback.
     if (F.supabase && F.supabase.configured) {
       Promise.allSettled([F.supabase.syncCatalog(), F.supabase.loadSettings()]).then(rs => {
