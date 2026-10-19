@@ -154,7 +154,7 @@
 
     <section class="section section-sand" id="about">
       <div class="container about">
-        <div class="about-art reveal" aria-hidden="true"><div class="arch-frame zellige"><span>فطومة</span></div></div>
+        <div class="about-art reveal"><div class="arch-frame arch-photo"><img src="img/about-door.webp" width="760" height="1270" loading="lazy" alt="مدخل فطومة: باب مغربي من الخشب والزليج على فناء به نافورة"></div></div>
         <div class="about-text reveal">
           <span class="kicker">À propos</span>
           <h2>حكاية فطومة</h2>
