@@ -383,16 +383,16 @@
     dlg.showModal();
   }
 
-  // resize + convert to JPEG (max 1000px) before upload
+  // resize + convert to JPEG (max 800px) before upload
   function toJpegBlob(file) {
     return new Promise((resolve, reject) => {
       const img = new Image(), url = URL.createObjectURL(file);
       img.onload = () => {
-        const k = Math.min(1, 1000 / Math.max(img.width, img.height));
+        const k = Math.min(1, 800 / Math.max(img.width, img.height));
         const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
         const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
         URL.revokeObjectURL(url);
-        c.toBlob(b => b ? resolve(b) : reject(new Error('تعذّر معالجة الصورة')), 'image/jpeg', 0.85);
+        c.toBlob(b => b ? resolve(b) : reject(new Error('تعذّر معالجة الصورة')), 'image/jpeg', 0.8);
       };
       img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('ملف الصورة غير صالح')); };
       img.src = url;

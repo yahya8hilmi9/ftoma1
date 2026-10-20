@@ -105,7 +105,7 @@
             <li>${F.icon('truck', 20)} توصيل لباب الدار</li>
           </ul>
         </div>
-        <div class="hero-art"><div class="float"><img class="hero-photo" src="img/hero-door.webp" width="1097" height="1287" alt="باب فطومة المغربي المفتوح على صالون مغربي بالحلويات والشاي" fetchpriority="high"></div></div>
+        <div class="hero-art"><div class="float"><img class="hero-photo" src="img/hero-door.webp" width="900" height="1056" alt="باب فطومة المغربي المفتوح على صالون مغربي بالحلويات والشاي" fetchpriority="high"></div></div>
       </div>
     </section>
 
